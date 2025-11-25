@@ -71,12 +71,15 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
-        const deletedBook = await book.findByIdAndDelete(id);
+        const deletedBook = await book.findById(id);
+
         if (!deletedBook) {
-            res.status(404).json({ message: "Book not found" });
-        } 
-        
-        res.status(200).json({ message: "Book deleted successfully" });
+            return res.status(404).json({ message: "Book not found" });
+        }
+
+        await deletedBook.updateOne({ isActive: false });
+
+        res.status(200).json({ message: "Book deleted successfully", deletedBook });
 
     } catch (error) {
         next(error);
